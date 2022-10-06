@@ -4,59 +4,89 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
+import {
+    PrismaService
+} from 'src/prisma/prisma.service';
 
 import {
-    User
+    UserModel
 } from "./user.model"
 
 @Injectable()
 export class UserService {
     private users = []
-    getUsers() {
-        return this.users;
+    constructor(private prismaService: PrismaService) {}
+    async getUsers() {
+        return await this.prismaService.user.findMany(); //this.users;
     }
-    createUser(body: User) {
+    async createUser(body: UserModel) {
         // body.id = Date.now().toString();
         body.registered_at = new Date();
-        const [user, _] = this.checkUser(body.id)
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                user_name: body.user_name
+            }
+        })
         if (user) {
-            throw new BadRequestException("This user id exists. Please choose another")
+            throw new BadRequestException("This user name exists. Please choose another")
         }
-        this.users.push(body)
-        return this.users
+
+        return await this.prismaService.user.create({
+            data: body
+        })
     }
-    getUserById(id: string) {
-        const [user, _] = this.checkUser(id);
+    async getUserById(id: number) {
+        const user = await this.checkUser(Number(id));
         if (!user) {
-            throw new BadRequestException("user not found with this id")
+            throw new BadRequestException("user not found with id " + id)
         }
         return user;
     }
-    loginUser(user_name: string, password: string) {
-        let user = this.users.find(elem => elem.user_name == user_name && elem.password == password)
+    async loginUser(user_name: string, password: string) {
+        let user = await this.prismaService.user.findFirst({
+            where: {
+                AND: [{
+                        user_name: user_name
+                    },
+                    {
+                        password: password
+                    }
+                ]
+            }
+        })
         if (!user) {
-            throw new BadRequestException("user not found")
+            throw new BadRequestException("login or password is incorrect")
         }
         return user
     }
-    deleteUserById(id: string, requesterId:string) {
-        const [user1, userIndex1] = this.checkUser(id)
-        const [user2, _] = this.checkUser(requesterId)
+    async deleteUserById(id: string, requesterId: string) {
+        const user1 = await this.checkUser(Number(id))
+        const user2 = await this.checkUser(Number(requesterId))
         if (!user1 || !user2) {
             throw new BadRequestException("User not found with this id")
         } else if (user2.role != 1)
             throw new BadRequestException("You do not have permission to delete")
-        this.users.splice(userIndex1, 1)
+        // this.users.splice(userIndex1, 1)
+        await this.prismaService.user.delete({
+            where: {
+                id: Number(id)
+            }
+        })
         return {
             "statusCode": 201,
             "message": "User successfully deleted",
             "error": "Success",
-            "data": this.users
+            "data": await this.prismaService.user.findMany()
         }
     }
-    private checkUser(id: string): [User, number] {
-        let userIndex = this.users.findIndex(elem => elem.id == id);
-        let user = this.users[userIndex];
-        return [user, userIndex];
+    private async checkUser(id: number): Promise < UserModel > {
+
+        // let userIndex = this.users.findIndex(elem => elem.id == id);
+        let user = await this.prismaService.user.findUnique({
+            where: {
+                id
+            }
+        })
+        return user;
     }
 }

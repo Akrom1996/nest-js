@@ -9,7 +9,7 @@ import {
     Query,
 } from '@nestjs/common';
 import {
-    User
+    UserModel
 } from './user.model';
 
 import {
@@ -20,7 +20,7 @@ import {
 export class UserController {
     constructor(private readonly userService: UserService) {}
     @Post()
-    registerUser(@Body() body: User) {
+    registerUser(@Body() body: UserModel) {
         return this.userService.createUser(body);
     }
     @Get('/login')
@@ -32,7 +32,7 @@ export class UserController {
         return this.userService.getUsers();
     }
     @Get(':id')
-    getUserById(@Param('id') id: string) {
+    getUserById(@Param('id') id: number) {
         return this.userService.getUserById(id);
     }
 
