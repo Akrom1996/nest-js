@@ -14,7 +14,6 @@ import {
 
 @Injectable()
 export class UserService {
-    private users = []
     constructor(private prismaService: PrismaService) {}
     async getUsers(id: number) {
         const user = await this.checkUser(Number(id));
@@ -90,7 +89,7 @@ export class UserService {
     async updateUserInfo(userId: number, adminId:number,body: UserModel){
         let user = await this.checkUser(Number(userId))
         let admin = await this.checkUser(Number(adminId))
-        if(!user || admin){
+        if(!user || !admin){
             throw new BadRequestException("You are trying to update on not existing account/or you are not registered")
         }
         if(admin.role == 0){

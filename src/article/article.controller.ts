@@ -4,7 +4,8 @@ import {
     Delete,
     Get,
     Param,
-    Post
+    Post,
+    Put
 } from "@nestjs/common";
 import {
     ArticleModel
@@ -21,19 +22,24 @@ export class ArticleController {
     getArticles() {
         return this.article.getAllArticles()
     }
-    
+
     @Get(':id')
     getArticleById(@Param("id") id: number) {
         return this.article.getArticleById(id);
     }
-    
+
     @Post(":userId")
     craeteArticle(@Param("userId") userId: number, @Body() body: ArticleModel) {
         return this.article.createNewArticle(userId, body);
     }
-    
+
     @Delete(':userId/:articleId')
-    deleteArticle(@Param("userId") userId: number,@Param("articleId") articleId: number){
-        return this.article.deleteArticle(userId,articleId);
+    deleteArticle(@Param("userId") userId: number, @Param("articleId") articleId: number) {
+        return this.article.deleteArticle(userId, articleId);
+    }
+
+    @Put(":userId/:articleId")
+    updateArticle(@Param("userId") userId: number, @Param("articleId") articleId: number, @Body() body: ArticleModel) {
+        return this.article.updateArticle(userId, articleId, body);
     }
 }

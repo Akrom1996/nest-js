@@ -12,11 +12,11 @@ import {
 @Injectable()
 export class ArticleService {
     constructor(private prismaService: PrismaService) {}
-    
+
     // For Users and Admins
     async getAllArticles() {
-        return  await this.prismaService.article.findMany({
-            orderBy:{
+        return await this.prismaService.article.findMany({
+            orderBy: {
                 created_at: 'desc'
             }
         });
@@ -59,6 +59,25 @@ export class ArticleService {
         })
     }
 
+    // For Admins only
+    async updateArticle(userId: number, articleId: number, body: ArticleModel) {
+        let user = await this.checkUser(Number(userId))
+        let article = await this.checkArticle(Number(articleId))
+        if (!user) {
+            throw new BadRequestException("User not found")
+        }
+        if (user.role == 0)
+            throw new BadRequestException("You are not allowed to update document")
+        if (!article)
+            throw new BadRequestException("Article not found")
+        return await this.prismaService.article.update({
+            where: {
+                id: Number(articleId)
+            },
+            data: body
+        })
+    }
+
     async checkUser(id: number) {
         let user = await this.prismaService.user.findUnique({
             where: {
@@ -68,7 +87,7 @@ export class ArticleService {
         if (!user) {
             throw new BadRequestException("User not found")
         }
-        
+
         return user;
     }
     async checkArticle(articleId: number) {
