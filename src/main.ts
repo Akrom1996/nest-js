@@ -7,9 +7,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('User API')
-    .setDescription('Users can register/login create delete posts')
+    .setDescription('Users can register/login create delete article')
     .setVersion('1.0')
-    .addTag('User')
+    .addTag('User/Article')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/swagger', app, document);

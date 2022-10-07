@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import {
     PrismaService
-} from 'src/prisma/prisma.service'; //../../
+} from '../../src/prisma/prisma.service';
 
 import {
     UserModel

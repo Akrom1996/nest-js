@@ -41,8 +41,14 @@ describe('UserController', () => {
       expect(await userController.getUsers(6)).toEqual(result);
     });
     it("should return Object", async () => {
-      expect(await userController.loginUser("aobidov4", "1111"))
-      .toEqual({"id": 5, "password": "1111", "registered_at": new Date("2022-10-06T07:04:44.599Z"), "role": 0, "user_name": "aobidov4"})
+      expect(await userController.loginUser("aobidov7", "1111"))
+        .toEqual({
+          "id": 7,
+          "password": "1111",
+          "registered_at": new Date("2022-10-06T07:09:45.559Z"),
+          "role": 0,
+          "user_name": "aobidov7"
+        })
     })
 
     it("Should return Exception", async () => {
@@ -52,5 +58,16 @@ describe('UserController', () => {
         expect(error).toBeInstanceOf(BadRequestException)
       }
     })
+
+    // it("Should return array on success else return exception", async () => {
+    //   await userController.deleteUser("6", "11")
+    //   .then((data) => {
+    //     expect(data).toBeInstanceOf(typeof {})
+    //   }).catch((err) => {
+    //     console.log(err);
+        
+    //     expect(err).toBeInstanceOf(BadRequestException)
+    //   })
+    // })
   });
 });
