@@ -16,8 +16,15 @@ import {
 export class UserService {
     private users = []
     constructor(private prismaService: PrismaService) {}
-    async getUsers() {
-        return await this.prismaService.user.findMany(); //this.users;
+    async getUsers(id: number) {
+        const user = await this.checkUser(Number(id));
+        if (!user) {
+            throw new BadRequestException("user not found with id " + id)
+        }
+        if (user.role == 0)
+            return user;
+        else
+            return await this.prismaService.user.findMany(); //this.users;
     }
     async createUser(body: UserModel) {
         // body.id = Date.now().toString();
@@ -35,13 +42,13 @@ export class UserService {
             data: body
         })
     }
-    async getUserById(id: number) {
-        const user = await this.checkUser(Number(id));
-        if (!user) {
-            throw new BadRequestException("user not found with id " + id)
-        }
-        return user;
-    }
+    // async getUserById(id: number) {
+    //     const user = await this.checkUser(Number(id));
+    //     if (!user) {
+    //         throw new BadRequestException("user not found with id " + id)
+    //     }
+    //     return user;
+    // }
     async loginUser(user_name: string, password: string) {
         let user = await this.prismaService.user.findFirst({
             where: {
@@ -78,6 +85,22 @@ export class UserService {
             "error": "Success",
             "data": await this.prismaService.user.findMany()
         }
+    }
+
+    async updateUserInfo(userId: number, adminId:number,body: UserModel){
+        let user = await this.checkUser(Number(userId))
+        let admin = await this.checkUser(Number(adminId))
+        if(!user || admin){
+            throw new BadRequestException("You are trying to update on not existing account/or you are not registered")
+        }
+        if(admin.role == 0){
+            throw new BadRequestException("You are not allowed to update the document")
+        }
+        return await this.prismaService.user.update({
+            where: {id: Number(userId)},
+            data: body
+        })
+        
     }
     private async checkUser(id: number): Promise < UserModel > {
 

@@ -7,6 +7,7 @@ import {
     Patch,
     Delete,
     Query,
+    Put,
 } from '@nestjs/common';
 import {
     UserModel
@@ -27,17 +28,18 @@ export class UserController {
     loginUser(@Query('user_name') user_name: string, @Query('pwd') password: string) {
         return this.userService.loginUser(user_name, password);
     }
-    @Get()
-    getUsers() {
-        return this.userService.getUsers();
-    }
     @Get(':id')
-    getUserById(@Param('id') id: number) {
-        return this.userService.getUserById(id);
+    getUsers(@Param('id') id: number) {
+        return this.userService.getUsers(id);
     }
 
     @Delete(':id/:requesterId')
     deleteUser(@Param('id') id: string, @Param('requesterId') requesterId:string) {
         return this.userService.deleteUserById(id,requesterId);
+    }
+
+    @Put(":userId/:adminId")
+    updateUser(@Param('userId') userId:number,@Param('adminId') adminId:number, @Body() body: UserModel){
+        return this.userService.updateUserInfo(userId,adminId,body)
     }
 }
